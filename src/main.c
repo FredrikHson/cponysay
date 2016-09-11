@@ -6,12 +6,27 @@
 size_t utf8len(char* s)
 {
     size_t len = 0;
+    char escaped = 0;
 
     for(; *s; ++s)
     {
         if((*s & 0xC0) != 0x80)
         {
-            ++len;
+            if(*s == '\e')
+            {
+                escaped = 1;
+            }
+
+
+            if(!escaped)
+            {
+                ++len;
+            }
+
+            if(*s == 'm' && escaped)
+            {
+                escaped = 0;
+            }
         }
     }
 
@@ -54,7 +69,7 @@ char** createNullTerminatedStrings(char* text, size_t bytes, int* numLines)
             size_t linelen = bytelen(zeroedText) + 1;
             lines[i] = malloc(linelen);
             memcpy(lines[i], zeroedText, linelen);
-            zeroedText+=linelen;
+            zeroedText += linelen;
 
         }
 
@@ -86,11 +101,46 @@ void printTextBox(char* text, size_t bytes)
 {
     int numLines = 0;
     char** lines = createNullTerminatedStrings(text, bytes, &numLines);
+    int longestLine = 0;
 
-    for(int i=0;i<numLines;i++)
+    for(int i = 0; i < numLines; i++)
     {
-        fprintf(stdout,"|%s|\n",lines[i]);
+        int linelen = utf8len(lines[i]);
+
+        if(linelen > longestLine)
+        {
+            longestLine = linelen;
+        }
     }
+
+    size_t totallen = (longestLine + 4) * 4 + 1;
+    char* top = malloc(totallen);
+    char* bottom = malloc(totallen);
+    memset(top, 0, (longestLine + 5) * 4);
+    memset(top, 0, (longestLine + 5) * 4);
+    sprintf(top, "╭");
+    sprintf(bottom, "╰");
+
+    for(int i = 0; i < longestLine + 2 ; i++)
+    {
+
+        sprintf(top, "%s─", top);
+        sprintf(bottom, "%s─", bottom);
+    }
+
+    sprintf(top, "%s╮", top);
+    sprintf(bottom, "%s╯", bottom);
+    fprintf(stdout, "%s\n", top);
+
+    for(int i = 0; i < numLines; i++)
+    {
+        int linelen = utf8len(lines[i]);
+        fprintf(stdout, "│ %s%*s │\n", lines[i], longestLine - linelen, "");
+    }
+
+    fprintf(stdout, "%s\n", bottom);
+    free(top);
+    free(bottom);
     destroyNullTerminatedStrings(lines, numLines);
     return;
 }
