@@ -32,6 +32,7 @@ size_t utf8len(char* s)
 
     return len;
 }
+
 size_t bytelen(char* s)
 {
     size_t len = 0;
@@ -97,11 +98,11 @@ void destroyNullTerminatedStrings(char** strings, int numLines)
     }
 }
 
-void printTextBox(char* text, size_t bytes)
+void printTextBox(char* text, size_t bytes,int minWidth)
 {
     int numLines = 0;
     char** lines = createNullTerminatedStrings(text, bytes, &numLines);
-    int longestLine = 0;
+    int longestLine = minWidth;
 
     for(int i = 0; i < numLines; i++)
     {
@@ -164,8 +165,7 @@ int main(int argc, char* argv[])
             char* input = malloc(len);
 
             fread(input, len, 1, stdin);
-            printTextBox(input, len);
-            /*fwrite(input, len, 1, stdout);*/
+            printTextBox(input, len,120);
 
             if(input != 0)
             {
