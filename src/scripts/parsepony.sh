@@ -18,10 +18,10 @@ function grepandremove()
 
 echo "$ponyfile" | grepandremove "BALLOON: " | grep top &>/dev/null
 location=$?
-balloontop=$(echo "$ponyfile" | grepandremove "BALLOON TOP: ")
-balloonbottom=$(echo "$ponyfile" | grepandremove "BALLOON BOTTOM: ")
-width=$(echo "$ponyfile" | grepandremove "WIDTH: ")
-height=$(echo "$ponyfile" | grepandremove "HEIGHT: ")
+balloontop=$(echo "$ponyfile" | grepandremove "BALLOON TOP: " | head -n1)
+balloonbottom=$(echo "$ponyfile" | grepandremove "BALLOON BOTTOM: " | head -n1)
+width=$(echo "$ponyfile" | grepandremove "WIDTH: " | head -n1)
+height=$(echo "$ponyfile" | grepandremove "HEIGHT: " | head -n1)
 linenr=$(echo "$ponyfile" | grep -n '$$$' | cut -f1 -d: | tail -n1)
 pony=$(echo "$ponyfile" | tail -n +$((linenr+2)) | sed 's/\n/\\n/g')
 

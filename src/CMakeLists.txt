@@ -28,11 +28,21 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ponies)
 foreach(PONY ${PONIES})
     get_filename_component(PONY_NAME ${PONY} NAME_WE)
     get_filename_component(ABSPONY ${PONY} ABSOLUTE)
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ponies/${PONY_NAME}.cpp
-        COMMAND ${CMAKE_CURRENT_LIST_DIR}/scripts/parsepony.sh ${ABSPONY} > ${CMAKE_CURRENT_BINARY_DIR}/ponies/${PONY_NAME}.cpp
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ponies/${PONY_NAME}.c
+        COMMAND ${CMAKE_CURRENT_LIST_DIR}/scripts/parsepony.sh ${ABSPONY} > ${CMAKE_CURRENT_BINARY_DIR}/ponies/${PONY_NAME}.c
         DEPENDS ./scripts/parsepony.sh ${ABSPONY}
         )
-    list(APPEND PONY_DEPEND ${CMAKE_CURRENT_BINARY_DIR}/ponies/${PONY_NAME}.cpp)
+    list(APPEND PONY_DEPEND ${CMAKE_CURRENT_BINARY_DIR}/ponies/${PONY_NAME}.c)
+endforeach()
+
+foreach(PONY ${EXTRAPONIES})
+    get_filename_component(PONY_NAME ${PONY} NAME_WE)
+    get_filename_component(ABSPONY ${PONY} ABSOLUTE)
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ponies/extra_${PONY_NAME}.c
+        COMMAND ${CMAKE_CURRENT_LIST_DIR}/scripts/parsepony.sh ${ABSPONY} > ${CMAKE_CURRENT_BINARY_DIR}/ponies/extra_${PONY_NAME}.c extra
+        DEPENDS ./scripts/parsepony.sh ${ABSPONY}
+        )
+    list(APPEND PONY_DEPEND ${CMAKE_CURRENT_BINARY_DIR}/ponies/extra_${PONY_NAME}.c)
 endforeach()
 
 add_executable(${CMAKE_PROJECT_NAME} ${COMMON_SRC} ${PONY_DEPEND})
