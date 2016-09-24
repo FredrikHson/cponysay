@@ -1,8 +1,14 @@
 #!/bin/bash
 
 filename=$1
+if [[ -z "$2" ]]; then
+    prefix=""
+else
+    prefix=${2}_
+fi
 justfilename=$(basename "$1")
-ponyname=${justfilename%.*}
+ponyname=${prefix}${justfilename%.*}
+ponyname=$(echo ${ponyname} | sed "s/-/_/g")
 ponyfile=$(cat $filename)
 
 function grepandremove()
@@ -26,7 +32,6 @@ echo "unsigned short ${ponyname}_balloon_bottom = $balloonbottom;"
 echo "unsigned short ${ponyname}_width          = $width;"
 echo "unsigned short ${ponyname}_height         = $height;"
 
-echo "char ${ponyname}_pony[] = {"
+echo "unsigned char ${ponyname}_pony[] = {"
 echo "$pony" | xxd -i
 echo "};"
-

@@ -1,0 +1,3 @@
+[submodule "external/ponysay"]
+	path = external/ponysay
+	url = https://github.com/erkin/ponysay.git
