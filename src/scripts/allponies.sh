@@ -23,6 +23,7 @@ function Cfile
 
         echo "extern char ${ponyname}_topbottom;"
         echo "extern char ${ponyname}_name[];"
+        echo "extern unsigned short ${ponyname}_balloon_width;"
         echo "extern unsigned short ${ponyname}_balloon_top;"
         echo "extern unsigned short ${ponyname}_balloon_bottom;"
         echo "extern unsigned short ${ponyname}_width;"
@@ -34,6 +35,9 @@ function Cfile
     echo "};"
     echo "char* allponies_name[]={"
     getreferences name
+    echo "};"
+    echo "unsigned short* allponies_balloon_width[]={"
+    getreferences  balloon_width '&'
     echo "};"
     echo "unsigned short* allponies_balloon_top[]={"
     getreferences  balloon_top '&'
@@ -58,6 +62,7 @@ function Hfile
     echo ""
     echo "extern char* allponies_topbottom[];"
     echo "extern char* allponies_name[];"
+    echo "extern unsigned short* allponies_balloon_width[];"
     echo "extern unsigned short* allponies_balloon_top[];"
     echo "extern unsigned short* allponies_balloon_bottom[];"
     echo "extern unsigned short* allponies_width[];"

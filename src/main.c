@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include "ponies.h"
 
 size_t utf8len(char* s)
 {
@@ -98,7 +101,7 @@ void destroyNullTerminatedStrings(char** strings, int numLines)
     }
 }
 
-void printTextBox(char* text, size_t bytes,int minWidth)
+void printTextBox(char* text, size_t bytes, int minWidth)
 {
     int numLines = 0;
     char** lines = createNullTerminatedStrings(text, bytes, &numLines);
@@ -151,6 +154,8 @@ int main(int argc, char* argv[])
     int fd = fileno(stdin);
     size_t len;
 
+    int RANDOM = open("/dev/random", O_RDONLY);
+
     while(1)
     {
         int ret = ioctl(fd, FIONREAD, &len);
@@ -162,16 +167,22 @@ int main(int argc, char* argv[])
 
         if(len)
         {
-            char* input = malloc(len);
+            char* input = (char*)malloc(len);
+            unsigned int pony;
+            read(RANDOM, &pony, sizeof(int));
+            pony = pony % numPonies / 2;
+
 
             fread(input, len, 1, stdin);
-            printTextBox(input, len,120);
+            printTextBox(input, len, *allponies_balloon_width[pony]);
 
             if(input != 0)
             {
                 free(input);
             }
 
+            fwrite(allponies_pony[pony], strlen((char*)allponies_pony[pony]), 1, stdout);
+            fflush(stdout);
             return 0;
         }
     }
