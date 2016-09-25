@@ -25,8 +25,9 @@ height=$(echo "$ponyfile" | grepandremove "HEIGHT: " | head -n1)
 linenr=$(echo "$ponyfile" | grep -n '$$$' | cut -f1 -d: | tail -n1)
 pony=$(echo "$ponyfile" | tail -n +$((linenr+2)) | sed 's/\n/\\n/g')
 
-
+echo "/* Auto Generated file DO NOT edit*/"
 echo "char ${ponyname}_topbottom                = $location;"
+echo "char ${ponyname}_name[]                   = \"${ponyname}\";"
 echo "unsigned short ${ponyname}_balloon_top    = $balloontop;"
 echo "unsigned short ${ponyname}_balloon_bottom = $balloonbottom;"
 echo "unsigned short ${ponyname}_width          = $width;"
