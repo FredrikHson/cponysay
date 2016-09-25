@@ -18,6 +18,7 @@ set(COMMON_SRC
 
 include_directories(
     "."
+    ${CMAKE_CURRENT_BINARY_DIR}
     )
 
 set(CMAKE_CXX_STANDARD 11)
@@ -44,6 +45,18 @@ foreach(PONY ${EXTRAPONIES})
         )
     list(APPEND PONY_DEPEND ${CMAKE_CURRENT_BINARY_DIR}/ponies/extra_${PONY_NAME}.c)
 endforeach()
+
+add_custom_command(OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/ponies.c
+    ${CMAKE_CURRENT_BINARY_DIR}/ponies.h
+    COMMAND ${CMAKE_CURRENT_LIST_DIR}/scripts/allponies.sh ${PONY_DEPEND}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/scripts/allponies.sh
+    )
+
+list(APPEND PONY_DEPEND
+    ${CMAKE_CURRENT_BINARY_DIR}/ponies.c
+    )
 
 add_executable(${CMAKE_PROJECT_NAME} ${COMMON_SRC} ${PONY_DEPEND})
 
