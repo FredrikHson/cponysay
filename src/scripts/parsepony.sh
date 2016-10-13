@@ -21,7 +21,7 @@ balloonbottom=$(echo "$ponyfile" | grepandremove "BALLOON BOTTOM: " | head -n1)
 width=$(echo "$ponyfile" | grepandremove "WIDTH: " | head -n1)
 height=$(echo "$ponyfile" | grepandremove "HEIGHT: " | head -n1)
 linenr=$(echo "$ponyfile" | grep -n '$$$' | cut -f1 -d: | tail -n1)
-pony=$(echo "$ponyfile" | tail -n +$((linenr+2)) | sed 's/\n/\\n/g' | head -n $height)
+pony=$(echo "$ponyfile" | tail -n +$((linenr+1)) | sed '/\$balloon.*\$/d' | sed 's/\n/\\n/g' | head -n $height)
 
 oldifs=$IFS
 IFS=$'\n'
