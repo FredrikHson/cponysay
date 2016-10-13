@@ -149,6 +149,22 @@ void printTextBox(char* text, size_t bytes, int minWidth)
     return;
 }
 
+void printPonyWithText(char* text, size_t bytes, unsigned int pony)
+{
+    if(*allponies_topbottom[pony])
+    {
+        fwrite(allponies_pony[pony], strlen((char*)allponies_pony[pony]), 1, stdout);
+        printTextBox(text, bytes, *allponies_balloon_width[pony]);
+    }
+    else
+    {
+        printTextBox(text, bytes, *allponies_balloon_width[pony]);
+        fwrite(allponies_pony[pony], strlen((char*)allponies_pony[pony]), 1, stdout);
+    }
+
+    fflush(stdout);
+}
+
 int main(int argc, char* argv[])
 {
     int fd = fileno(stdin);
@@ -174,15 +190,13 @@ int main(int argc, char* argv[])
 
 
             fread(input, len, 1, stdin);
-            printTextBox(input, len, *allponies_balloon_width[pony]);
+            printPonyWithText(input, len, pony);
 
             if(input != 0)
             {
                 free(input);
             }
 
-            fwrite(allponies_pony[pony], strlen((char*)allponies_pony[pony]), 1, stdout);
-            fflush(stdout);
             return 0;
         }
     }
