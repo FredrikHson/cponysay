@@ -169,7 +169,10 @@ void printPonyWithText(char* text, size_t bytes, unsigned int pony)
 void printHelp()
 {
 
-    fprintf(stdout, "-h --help\n");
+    fprintf(stdout,
+            "-h --help\n"
+            "-p --pony\n"
+            "-l --list\n");
     exit(0);
 }
 
