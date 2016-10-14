@@ -152,6 +152,8 @@ void printTextBox(char* text, size_t bytes, int minWidth)
 
 void printPonyWithText(char* text, size_t bytes, unsigned int pony)
 {
+    pony = pony % numPonies;
+
     if(*allponies_topbottom[pony])
     {
         fwrite(allponies_pony[pony], strlen((char*)allponies_pony[pony]), 1, stdout);
@@ -254,36 +256,70 @@ int main(int argc, char* argv[])
         }
     }
 
-    while(1)
+    size_t str_len = 0;
+
+
+    for(int i = optind; i < argc; i++)
     {
-        int ret = ioctl(fd, FIONREAD, &len);
+        str_len += strlen(argv[i]) + 1;
+    }
 
-        if(ret == -1)
+    if(pony == numPonies + 1)
+    {
+        read(RANDOM, &pony, sizeof(int));
+    }
+
+    pony = pony % numPonies;
+
+    if(str_len == 0)
+    {
+        while(1)
         {
-            return 0;
-        }
+            int ret = ioctl(fd, FIONREAD, &len);
 
-        if(len)
-        {
-            char* input = (char*)malloc(len);
-
-            if(pony == numPonies + 1)
+            if(ret == -1)
             {
-                read(RANDOM, &pony, sizeof(int));
+                return 0;
             }
 
-            pony = pony % numPonies;
-
-            fread(input, len, 1, stdin);
-            printPonyWithText(input, len, pony);
-
-            if(input != 0)
+            if(len)
             {
-                free(input);
-            }
+                char* input = (char*)malloc(len);
 
-            return 0;
+
+
+                fread(input, len, 1, stdin);
+                printPonyWithText(input, len, pony);
+
+                if(input != 0)
+                {
+                    free(input);
+                }
+
+                return 0;
+            }
         }
+
+    }
+    else
+    {
+        char* input = (char*)malloc(str_len + 1);
+
+        sprintf(input, "%s", argv[optind]);
+
+        for(int i = optind + 1; i < argc; i++)
+        {
+            sprintf(input, "%s %s", input, argv[i]);
+        }
+
+        sprintf(input, "%s\n", input);
+        printPonyWithText(input, str_len, pony);
+
+        if(input != 0)
+        {
+            free(input);
+        }
+
     }
 
     return 0;
