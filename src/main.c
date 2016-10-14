@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <getopt.h>
 #include "ponies.h"
 
 size_t utf8len(char* s)
@@ -165,12 +166,90 @@ void printPonyWithText(char* text, size_t bytes, unsigned int pony)
     fflush(stdout);
 }
 
+void printHelp()
+{
+
+    fprintf(stdout, "-h --help\n");
+    exit(0);
+}
+
+void ListPonies()
+{
+    for(int i = 0; i < numPonies; i++)
+    {
+        fprintf(stdout, "%-30s", allponies_name[i]);
+
+        if(i % 5 == 4)
+        {
+            fprintf(stdout, "\n");
+        }
+    }
+
+    fprintf(stdout, "\n");
+    exit(0);
+
+}
+
+unsigned int getPonyByName(char* name)
+{
+    int pony = numPonies + 1;
+
+    for(int i = 0; i < numPonies; i++)
+    {
+        if(strcmp(name, allponies_name[i]) == 0)
+        {
+            pony = i;
+            break;
+        }
+
+    }
+
+    return pony;
+}
+
 int main(int argc, char* argv[])
 {
     int fd = fileno(stdin);
     size_t len;
 
     int RANDOM = open("/dev/random", O_RDONLY);
+    unsigned int pony = numPonies + 1;
+
+    static const struct option longOpts[] =
+    {
+
+        { "pony", required_argument, 0, 'p' },
+        { "help", no_argument, 0, 'h' },
+        { "q", no_argument, 0, 'q' },
+        { "list", no_argument, 0, 'l' }
+    };
+
+    int c;
+    int longIndex = 0;
+
+    while((c = getopt_long(argc, argv, "p:hql", longOpts, &longIndex)) != -1)
+    {
+        switch(c)
+        {
+            case 'p':
+                pony = getPonyByName(optarg);
+                break;
+
+            case 'h':
+                printHelp();
+                break;
+
+            case 'q':
+                break;
+
+            case 'l':
+                ListPonies();
+                break;
+
+            default:
+                break;
+        }
+    }
 
     while(1)
     {
@@ -184,10 +263,13 @@ int main(int argc, char* argv[])
         if(len)
         {
             char* input = (char*)malloc(len);
-            unsigned int pony;
-            read(RANDOM, &pony, sizeof(int));
-            pony = pony % numPonies / 2;
 
+            if(pony == numPonies + 1)
+            {
+                read(RANDOM, &pony, sizeof(int));
+            }
+
+            pony = pony % numPonies;
 
             fread(input, len, 1, stdin);
             printPonyWithText(input, len, pony);
