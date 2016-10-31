@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
     int fd = fileno(stdin);
     size_t len;
 
-    int RANDOM = open("/dev/random", O_RDONLY);
+    int RANDOM = open("/dev/urandom", O_RDONLY);
     unsigned int pony = numPonies + 1;
 
     static const struct option longOpts[] =
