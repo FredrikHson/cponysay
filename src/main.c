@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sysexits.h>
 #include <sys/ioctl.h>
 #include <string.h>
 #include <fcntl.h>
@@ -262,6 +263,12 @@ int main(int argc, char* argv[])
     for(int i = optind; i < argc; i++)
     {
         str_len += strlen(argv[i]) + 1;
+    }
+
+    if(numPonies == 0)
+    {
+        fprintf(stderr, "All the ponies are missing, call the Princess!\n");
+        exit(EX_UNAVAILABLE);
     }
 
     if(pony == numPonies + 1)
