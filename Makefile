@@ -17,7 +17,7 @@ ifdef PREFIX
 	CMAKE_PREFIX="-DCMAKE_INSTALL_PREFIX=$(shell readlink -f $(PREFIX))"
 endif
 
-.PHONY: all build distclean clean release release_dbg_info debug install verifybuildtype
+.PHONY: all build distclean clean release release_dbg_info debug install verifybuildtype cppcheck
 .SILENT:
 
 all: release
@@ -62,3 +62,7 @@ clean:
 
 distclean:
 	@rm -rf build
+
+cppcheck:
+	cppcheck ${JFLAGS} --enable=all --platform=unix64  --suppress=missingIncludeSystem --inconclusive -I build -I src src
+
