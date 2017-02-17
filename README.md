@@ -1,3 +1,4 @@
+[![Build Status](http://fredrik.fulhax.nu:8090/job/cponysay/badge/icon)](http://fredrik.fulhax.nu:8090/job/cponysay)
 # cponysay
 
 a basic C implementation of [Ponysay](https://github.com/erkin/ponysay)
