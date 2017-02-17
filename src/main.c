@@ -148,12 +148,12 @@ void printTextBox(char* text, size_t bytes, int minWidth)
     for(int i = 0; i < longestLine + 2 ; i++)
     {
 
-        sprintf(top, "%s─", top);
-        sprintf(bottom, "%s─", bottom);
+        strcat(top,"─");
+        strcat(bottom,"─");
     }
 
-    sprintf(top, "%s╮", top);
-    sprintf(bottom, "%s╯", bottom);
+    strcat(top, "╮");
+    strcat(bottom, "╯");
     fprintf(stdout, "%s\n", top);
 
     for(int i = 0; i < numLines; i++)
@@ -311,13 +311,10 @@ int main(int argc, char* argv[])
             {
                 char* input = (char*)malloc(len);
 
-
-
-                fread(input, len, 1, stdin);
-                printPonyWithText(input, len, pony);
-
                 if(input != 0)
                 {
+                    fread(input, len, 1, stdin);
+                    printPonyWithText(input, len, pony);
                     free(input);
                 }
 
@@ -330,18 +327,17 @@ int main(int argc, char* argv[])
     {
         char* input = (char*)malloc(str_len + 1);
 
-        sprintf(input, "%s", argv[optind]);
-
-        for(int i = optind + 1; i < argc; i++)
-        {
-            sprintf(input, "%s %s", input, argv[i]);
-        }
-
-        sprintf(input, "%s\n", input);
-        printPonyWithText(input, str_len, pony);
-
         if(input != 0)
         {
+            sprintf(input, "%s", argv[optind]);
+
+            for(int i = optind + 1; i < argc; i++)
+            {
+                strcat(strcat(input, " "), argv[i]);
+            }
+
+            strcat(input, "\n");
+            printPonyWithText(input, str_len, pony);
             free(input);
         }
 
