@@ -64,5 +64,5 @@ distclean:
 	@rm -rf build
 
 cppcheck:
-	cppcheck ${JFLAGS} --enable=all --platform=unix64  --suppress=missingIncludeSystem --inconclusive -I build -I src src
+	cppcheck --enable=all --platform=unix64  --suppress=missingIncludeSystem --inconclusive -I build -I src src
 
