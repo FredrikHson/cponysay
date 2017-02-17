@@ -68,18 +68,36 @@ char** createNullTerminatedStrings(char* text, size_t bytes, int* numLines)
             }
         }
 
-        char** lines = malloc(*numLines * sizeof(char*));
-
-        for(int i = 0; i < *numLines; i++)
+        if(*numLines > 0)
         {
-            size_t linelen = bytelen(zeroedText) + 1;
-            lines[i] = malloc(linelen);
-            memcpy(lines[i], zeroedText, linelen);
-            zeroedText += linelen;
+            char** lines = malloc(*numLines * sizeof(char*));
+            char* zeroedstart = zeroedText;
 
+            for(int i = 0; i < *numLines; i++)
+            {
+                size_t linelen = bytelen(zeroedText) + 1;
+                lines[i] = malloc(linelen);
+                memcpy(lines[i], zeroedText, linelen);
+                zeroedText += linelen;
+
+            }
+
+            if(zeroedstart)
+            {
+                free(zeroedstart);
+            }
+
+            return lines;
         }
+        else
+        {
+            if(zeroedText)
+            {
+                free(zeroedText);
+            }
 
-        return lines;
+            return 0;
+        }
     }
     else
     {
