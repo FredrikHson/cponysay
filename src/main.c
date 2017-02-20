@@ -4,8 +4,8 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <getopt.h>
+#include <unistd.h>
 #include "ponies.h"
 
 size_t utf8len(char* s)
