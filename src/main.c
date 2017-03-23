@@ -7,6 +7,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include "ponies.h"
+#include <limits.h>
 
 size_t utf8len(char* s)
 {
@@ -148,8 +149,8 @@ void printTextBox(char* text, size_t bytes, int minWidth)
     for(int i = 0; i < longestLine + 2 ; i++)
     {
 
-        strcat(top,"─");
-        strcat(bottom,"─");
+        strcat(top, "─");
+        strcat(bottom, "─");
     }
 
     strcat(top, "╮");
@@ -168,20 +169,90 @@ void printTextBox(char* text, size_t bytes, int minWidth)
     destroyNullTerminatedStrings(lines, numLines);
     return;
 }
+void clipPony(int width, unsigned int pony)
+{
+    size_t len = strlen((char*)allponies_pony[pony]);
+    char* p = (char*)allponies_pony[pony];
+    size_t linelen = 0;
+    char printmorethisline = 1;
 
-void printPonyWithText(char* text, size_t bytes, unsigned int pony)
+    for(int i = 0; i < len; i++)
+    {
+
+        if((p[i] & 0x80) == 0x80)
+        {
+            if((p[i] & 0xF8) == 0xF0)
+            {
+                if(linelen < width)
+                {
+                    fwrite(p + i, 4, 1, stdout);
+                    printf("wtf");
+                }
+
+                i += 3;
+            }
+            else if((p[i] & 0xF0) == 0xE0)
+            {
+                if(linelen < width)
+                {
+                    fwrite(p + i, 3, 1, stdout);
+                }
+
+                i += 2;
+            }
+            else if((p[i] & 0xE0) == 0xC0)
+            {
+                if(linelen < width)
+                {
+                    fwrite(p + i, 2, 1, stdout);
+                }
+
+                i += 1;
+            }
+            else
+            {
+                if(linelen < width)
+                {
+                    fwrite(p + i, 1, 1, stdout);
+                }
+            }
+
+            linelen++;
+        }
+        else if(p[i] == 0x20)
+        {
+            linelen++;
+
+            if(linelen < width)
+            {
+                putchar(0x20);
+            }
+        }
+        else
+        {
+            putchar(p[i]);
+        }
+
+        if(p[i] == '\n')
+        {
+            linelen = 0;
+        }
+    }
+}
+
+void printPonyWithText(char* text, size_t bytes, unsigned int pony, unsigned int width)
 {
     pony = pony % numPonies;
 
     if(*allponies_topbottom[pony])
     {
-        fwrite(allponies_pony[pony], strlen((char*)allponies_pony[pony]), 1, stdout);
+        clipPony(width, pony);
         printTextBox(text, bytes, *allponies_balloon_width[pony]);
     }
     else
     {
         printTextBox(text, bytes, *allponies_balloon_width[pony]);
-        fwrite(allponies_pony[pony], strlen((char*)allponies_pony[pony]), 1, stdout);
+        clipPony(width, pony);
     }
 
     fflush(stdout);
@@ -193,6 +264,7 @@ void printHelp()
     fprintf(stdout,
             "-h --help\n"
             "-p --pony\n"
+            "-w --width\n"
             "-l --list\n");
     exit(0);
 }
@@ -235,6 +307,7 @@ int main(int argc, char* argv[])
 {
     int fd = fileno(stdin);
     size_t len;
+    int width = 0;
 
     int RANDOM = open("/dev/urandom", O_RDONLY);
     unsigned int pony = numPonies + 1;
@@ -245,13 +318,14 @@ int main(int argc, char* argv[])
         { "pony", required_argument, 0, 'p' },
         { "help", no_argument, 0, 'h' },
         { "q", no_argument, 0, 'q' },
-        { "list", no_argument, 0, 'l' }
+        { "list", no_argument, 0, 'l' },
+        { "width", no_argument, 0, 'w' }
     };
 
     int c;
     int longIndex = 0;
 
-    while((c = getopt_long(argc, argv, "p:hql", longOpts, &longIndex)) != -1)
+    while((c = getopt_long(argc, argv, "p:hqlw:", longOpts, &longIndex)) != -1)
     {
         switch(c)
         {
@@ -268,6 +342,10 @@ int main(int argc, char* argv[])
 
             case 'l':
                 ListPonies();
+                break;
+
+            case 'w':
+                width = atoi(optarg);
                 break;
 
             default:
@@ -296,6 +374,20 @@ int main(int argc, char* argv[])
 
     pony = pony % numPonies;
 
+    if(width == 0)
+    {
+
+        struct winsize sz;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &sz);
+
+        if(sz.ws_col == 0)
+        {
+            sz.ws_col = USHRT_MAX;
+        }
+
+        width = sz.ws_col;
+    }
+
     if(str_len == 0)
     {
         while(1)
@@ -314,7 +406,7 @@ int main(int argc, char* argv[])
                 if(input != 0)
                 {
                     fread(input, len, 1, stdin);
-                    printPonyWithText(input, len, pony);
+                    printPonyWithText(input, len, pony, width);
                     free(input);
                 }
 
@@ -337,7 +429,7 @@ int main(int argc, char* argv[])
             }
 
             strcat(input, "\n");
-            printPonyWithText(input, str_len, pony);
+            printPonyWithText(input, str_len, pony, width);
             free(input);
         }
 
