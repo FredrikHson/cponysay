@@ -63,6 +63,6 @@ clean:
 distclean:
 	@rm -rf build
 
-cppcheck:
-	cppcheck --enable=all --platform=unix64  --suppress=missingIncludeSystem --inconclusive -I build -I src src
+cppcheck: build/Makefile
+	cppcheck -j16 --enable=all --platform=unix64   --inconclusive --project=${BASE_DIR}/build/compile_commands.json -i "${BASE_DIR}/build/ponies/"
 
