@@ -22,6 +22,10 @@ width=$(echo "$ponyfile" | grepandremove "WIDTH: " | head -n1)
 height=$(echo "$ponyfile" | grepandremove "HEIGHT: " | head -n1)
 linenr=$(echo "$ponyfile" | grep -n '$$$' | cut -f1 -d: | tail -n1)
 pony=$(echo "$ponyfile" | tail -n +$((linenr+1)) | sed '/\$balloon.*\$/d' | sed 's/\n/\\n/g' | head -n $height)
+master=$(echo "$ponyfile" | grepandremove "MASTER: " | head -n1)
+if [[ -z "${master}" ]]; then
+    master="${justfilename%.*}"
+fi
 
 oldifs=$IFS
 IFS=$'\n'
@@ -50,6 +54,7 @@ fi
 balloonmin=$(echo "$balloonmin" | grep  -E -o  '.*\$\\\$|.*\$/\$' | wc -c)
 
 echo "/* Auto Generated file DO NOT edit*/"
+echo "/* Master ${master} */"
 echo "char ${ponyname}_topbottom                = $location;"
 echo "char ${ponyname}_name[]                   = \"${ponyname}\";"
 echo "unsigned short ${ponyname}_balloon_width  = $balloonmin;"

@@ -7,7 +7,6 @@
 #include <getopt.h>
 #include <unistd.h>
 #include "ponies.h"
-#include <limits.h>
 
 size_t utf8len(char* s)
 {
@@ -18,7 +17,7 @@ size_t utf8len(char* s)
     {
         if((*s & 0xC0) != 0x80)
         {
-            if(*s == '\e')
+            if(*s == 0x1b)
             {
                 escaped = 1;
             }
@@ -174,7 +173,6 @@ void clipPony(int width, unsigned int pony)
     size_t len = strlen((char*)allponies_pony[pony]);
     char* p = (char*)allponies_pony[pony];
     size_t linelen = 0;
-    char printmorethisline = 1;
 
     for(int i = 0; i < len; i++)
     {
@@ -382,7 +380,7 @@ int main(int argc, char* argv[])
 
         if(sz.ws_col == 0)
         {
-            sz.ws_col = USHRT_MAX;
+            sz.ws_col = 65535;
         }
 
         width = sz.ws_col;
