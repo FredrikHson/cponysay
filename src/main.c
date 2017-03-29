@@ -7,6 +7,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include "ponies.h"
+#include <errno.h>
 
 size_t utf8len(char* s)
 {
@@ -304,7 +305,7 @@ extern unsigned char* quotes_mute;
 int main(int argc, char* argv[])
 {
     int fd = fileno(stdin);
-    size_t len;
+    size_t len = 0;
     int width = 0;
 
     int RANDOM = open("/dev/urandom", O_RDONLY);
@@ -409,51 +410,56 @@ int main(int argc, char* argv[])
         size_t textlen = strlen(text);
         printPonyWithText(text, textlen, pony, width);
     }
-    else if(str_len == 0)
-    {
-        while(1)
-        {
-            int ret = ioctl(fd, FIONREAD, &len);
-
-            if(ret == -1)
-            {
-                return 0;
-            }
-
-            if(len)
-            {
-                char* input = (char*)malloc(len);
-
-                if(input != 0)
-                {
-                    fread(input, len, 1, stdin);
-                    printPonyWithText(input, len, pony, width);
-                    free(input);
-                }
-
-                return 0;
-            }
-        }
-
-    }
     else
     {
-        char* input = (char*)malloc(str_len + 1);
-
-        if(input != 0)
+        if(str_len == 0)
         {
-            sprintf(input, "%s", argv[optind]);
-
-            for(int i = optind + 1; i < argc; i++)
+            while(1)
             {
-                strcat(strcat(input, " "), argv[i]);
+                int ret = ioctl(fd, FIONREAD, &len);
+
+                if(ret == -1)
+                {
+                    return 1;
+                }
+
+                if(len != 0)
+                {
+                    char* input = (char*)malloc(len);
+
+                    if(input != 0)
+                    {
+                        fread(input, len, 1, stdin);
+                        printPonyWithText(input, len, pony, width);
+                        free(input);
+                    }
+                    else
+                    {
+                        printf("error %s\n", strerror(errno));
+                    }
+
+                    return 0;
+                }
             }
-
-            strcat(input, "\n");
-            printPonyWithText(input, str_len, pony, width);
-            free(input);
         }
+        else
+        {
+            char* input = (char*)malloc(str_len + 1);
 
+            if(input != 0)
+            {
+                sprintf(input, "%s", argv[optind]);
+
+                for(int i = optind + 1; i < argc; i++)
+                {
+                    strcat(strcat(input, " "), argv[i]);
+                }
+
+                strcat(input, "\n");
+                printPonyWithText(input, str_len, pony, width);
+                free(input);
+            }
+        }
     }
 
     return 0;
