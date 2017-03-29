@@ -11,7 +11,7 @@ file(GLOB_RECURSE EXTRAPONIES
     ../external/ponysay/extraponies/*.pony
     )
 file(GLOB_RECURSE QUOTES
-    ../external/ponysay/ponyquotes/*
+    ../external/ponysay/ponyquotes/*.*
     )
 
 
