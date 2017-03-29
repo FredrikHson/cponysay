@@ -14,10 +14,24 @@ function getreferences()
     done
     echo "    0"
 }
+function getquotes()
+{
+    for i in ${inputfiles[@]}; do
+        master=$(awk 'NR==2 {print $3}' $i)
+        grep "_${master}\[" quotes.c -q
+        if [[  $? -ne 0 ]]; then
+            master="mute"
+        fi
+        getname $i
+        echo "    ${2}${1}_${master},"
+    done
+    echo "    0"
+}
 function Cfile
 {
-    echo "/* Auto Generated file DO NOT edit*/"
+    echo "/* Auto Generated file DO NOT edit */"
     echo ""
+    echo "#include \"quotes.h\""
     for i in ${inputfiles[@]}; do
         getname $i
 
@@ -54,11 +68,17 @@ function Cfile
     echo "unsigned char* allponies_pony[]={"
     getreferences pony
     echo "};"
+    echo "unsigned char** allponies_quotes[]={"
+    getquotes "quotes"
+    echo "};"
+    echo "unsigned short* allponies_numquotes[]={"
+    getquotes "numquotes" '&'
+    echo "};"
     echo "int numPonies = ${#inputfiles[@]};"
 }
 function Hfile
 {
-    echo "/* Auto Generated file DO NOT edit*/"
+    echo "/* Auto Generated file DO NOT edit */"
     echo ""
     echo "extern char* allponies_topbottom[];"
     echo "extern char* allponies_name[];"
@@ -68,6 +88,8 @@ function Hfile
     echo "extern unsigned short* allponies_width[];"
     echo "extern unsigned short* allponies_height[];"
     echo "extern unsigned char* allponies_pony[];"
+    echo "extern unsigned char** allponies_quotes[];"
+    echo "extern unsigned short* allponies_numquotes[];"
     echo "extern int numPonies;"
 }
 Cfile > ponies.c

@@ -237,7 +237,6 @@ void clipPony(int width, unsigned int pony)
         }
     }
 }
-
 void printPonyWithText(char* text, size_t bytes, unsigned int pony, unsigned int width)
 {
     pony = pony % numPonies;
@@ -263,6 +262,7 @@ void printHelp()
             "-h --help\n"
             "-p --pony\n"
             "-w --width\n"
+            "-q --quote\n"
             "-l --list\n");
     exit(0);
 }
@@ -300,7 +300,7 @@ unsigned int getPonyByName(char* name)
 
     return pony;
 }
-
+extern unsigned char* quotes_mute;
 int main(int argc, char* argv[])
 {
     int fd = fileno(stdin);
@@ -309,13 +309,16 @@ int main(int argc, char* argv[])
 
     int RANDOM = open("/dev/urandom", O_RDONLY);
     unsigned int pony = numPonies + 1;
+    _Bool quote = 0;
+    _Bool requestedpony = 0;
+
 
     static const struct option longOpts[] =
     {
 
         { "pony", required_argument, 0, 'p' },
         { "help", no_argument, 0, 'h' },
-        { "q", no_argument, 0, 'q' },
+        { "quote", no_argument, 0, 'q' },
         { "list", no_argument, 0, 'l' },
         { "width", no_argument, 0, 'w' }
     };
@@ -323,23 +326,25 @@ int main(int argc, char* argv[])
     int c;
     int longIndex = 0;
 
-    while((c = getopt_long(argc, argv, "p:hqlw:", longOpts, &longIndex)) != -1)
+    while((c = getopt_long(argc, argv, "p:hqlw:q", longOpts, &longIndex)) != -1)
     {
         switch(c)
         {
             case 'p':
                 pony = getPonyByName(optarg);
+                requestedpony = 1;
                 break;
 
             case 'h':
                 printHelp();
                 break;
 
-            case 'q':
-                break;
-
             case 'l':
                 ListPonies();
+                break;
+
+            case 'q':
+                quote = 1;
                 break;
 
             case 'w':
@@ -386,7 +391,25 @@ int main(int argc, char* argv[])
         width = sz.ws_col;
     }
 
-    if(str_len == 0)
+    if(quote)
+    {
+        if(!requestedpony)
+        {
+            while(*allponies_quotes[pony] == quotes_mute)
+            {
+                read(RANDOM, &pony, sizeof(int));
+                pony = pony % numPonies;
+            }
+        }
+
+        unsigned short randomquote = 0;
+        read(RANDOM, &randomquote, sizeof(unsigned short));
+        randomquote = randomquote % (*allponies_numquotes[pony]);
+        char* text = (char*)allponies_quotes[pony][randomquote];
+        size_t textlen = strlen(text);
+        printPonyWithText(text, textlen, pony, width);
+    }
+    else if(str_len == 0)
     {
         while(1)
         {

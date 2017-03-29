@@ -53,7 +53,7 @@ else
 fi
 balloonmin=$(echo "$balloonmin" | grep  -E -o  '.*\$\\\$|.*\$/\$' | wc -c)
 
-echo "/* Auto Generated file DO NOT edit*/"
+echo "/* Auto Generated file DO NOT edit */"
 echo "/* Master ${master} */"
 echo "char ${ponyname}_topbottom                = $location;"
 echo "char ${ponyname}_name[]                   = \"${ponyname}\";"
