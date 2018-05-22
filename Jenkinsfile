@@ -7,7 +7,7 @@ pipeline
         {
             steps
             {
-                sh 'make'
+                sh 'make -j\$(nproc)'
             }
         }
         stage('check')
