@@ -1,6 +1,6 @@
 # Maintainer: Fredrik <fredrikhansson_12345[at]yahoo[dot]com>
 pkgname=cponysay
-pkgver=1.0
+pkgver=r39.2425.3e1340e
 pkgrel=1
 pkgdesc="a basic C implementation of Ponysay"
 url="https://github.com/FredrikHson/cponysay"
@@ -11,6 +11,16 @@ source=(
 "git+https://github.com/erkin/ponysay.git"
 )
 sha256sums=('SKIP' 'SKIP')
+
+pkgver()
+{
+    cd "${srcdir}/${pkgname}"
+    countc=$(git rev-list --count HEAD)
+    shac=$(git rev-parse --short HEAD)
+    cd "${srcdir}/ponysay"
+    countp=$(git rev-list --count HEAD)
+    echo "r${countc}.${countp}.${shac}"
+}
 
 prepare()
 {
